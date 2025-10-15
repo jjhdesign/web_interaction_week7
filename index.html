@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carbon</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+        font-family: Arial, sans-serif;
+        color: #333;
+      }
+      body {
+        /* 배경 고정 */
+        background-attachment: fixed;
+        transition: background-image 0.5s ease-in-out;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-image: url("1.jpg");
+      }
+      .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        height: 100%;
+        padding: 50px;
+        box-sizing: border-box;
+      }
+      .title {
+        font-size: 100px;
+        font-weight: 600;
+        color: white;
+        text-align: left;
+        flex: 1;
+        flex-basis: 50%; /* 두 구역이 비슷한 너비를 갖도록 설정 */
+        padding-right: 50px;
+        word-break: keep-all; /* 단어 단위 줄바꿈 */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 가독성을 위한 그림자 효과 */
+      }
+      main {
+        text-align: center;
+        padding: 20px;
+        background-color: rgba(255, 255, 255, 0.85); /* 불투명도 약간 높임 */
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        flex: 1;
+        flex-basis: 50%; /* 두 구역이 비슷한 너비를 갖도록 설정 */
+        max-width: 700px; /* 오른쪽 UI 최대 너비 확장 */
+        min-height: 500px; /* 최소 높이 설정 */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-top: auto;
+        margin-bottom: auto;
+      }
+      #search-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 20px;
+      }
+      #urlInput {
+        flex-grow: 1;
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 24px;
+        font-size: 16px;
+        margin-right: 10px;
+        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      #urlInput:focus {
+        outline: none;
+        border-color: #4285f4;
+        box-shadow: 0 0 0 1px #4285f4;
+      }
+      #setInput {
+        padding: 12px 25px;
+        border: none;
+        background-color: #4285f4;
+        color: white;
+        border-radius: 24px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+      }
+      #setInput:hover {
+        background-color: #357ae8;
+      }
+      h2 {
+        font-size: 24px;
+        color: #555;
+        margin-top: 0;
+      }
+      #carbonList {
+        text-align: left;
+        width: 100%;
+        overflow-y: auto;
+        max-height: 250px;
+        padding-right: 10px;
+      }
+      .result-item {
+        background-color: #f9f9f9;
+        padding: 10px 15px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        font-size: 14px;
+      }
+      .result-item span {
+        word-break: break-all;
+      }
+      #totalCarbon {
+        font-weight: bold;
+        font-size: 18px;
+        color: #007bff;
+        padding: 10px 0;
+        text-align: left;
+      }
+      hr {
+        width: 100%;
+        border: 0;
+        height: 1px;
+        background: #ddd;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <p class="title">How is the forest changing behind my screen?</p>
+      <main>
+        <h4>계산해 볼 사이트</h4>
+        <div id="search-container">
+          <input id="urlInput" type="url" placeholder="URL을 입력하세요..." />
+          <button id="setInput">Go!</button>
+        </div>
+
+        <h2>누적 결과</h2>
+        <div id="carbonList"></div>
+        <hr />
+        <div id="totalCarbon"></div>
+      </main>
+    </div>
+
+    <audio id="backgroundAudio" src="1.mp3" loop></audio>
+
+    <script>
+      // proxy Url은 요청을 보낼 때, 간단히 말하면 다른 사이트에 요청을 보낼 수 있도록 우회하기 위해 필요한 주소
+      const proxyUrl = "https://corsproxy.io/?";
+      // https://developers.google.com/speed/docs/insights/v5/get-started?hl=ko&_gl=1*1impw7v*_up*MQ..*_ga*NDYzMzExMjMzLjE3NjA1MzIzNzc.*_ga_SM8HXJ53K2*czE3NjA1MzIzNzckbzEkZzAkdDE3NjA1MzIzNzckajYwJGwwJGgw#APIKey 에 접속해서 "키 가져오기" 버튼으로 API 키 발급, 이후 PASTE_API_KEY_HERE 부분에 붙여넣기
+      const apiKey = "AIzaSyAO-LxIj-DTJ7hGxeQqQ9E9fvMIH2h18hU";
+
+      // 등급별 CO2 기준 수치 (g)
+      const ratingTiers = {
+        A_plus: 0.04,
+        A: 0.079,
+        B: 0.145,
+        C: 0.209,
+        D: 0.278,
+        E: 0.359,
+        F: 0.36,
+      };
+
+      // input으로 받는 url
+      let targetUrl = "";
+      // 누적 탄소 배출량을 계산하기 위한 변수
+      let totalCarbonAmount = 0;
+      // 누적 웹사이트 개수
+      let websiteCount = 0;
+
+      // 오디오 요소 가져오기
+      const backgroundAudio = document.getElementById("backgroundAudio");
+
+      // 초기 상태 설정
+      const body = document.body;
+      body.style.backgroundImage = `url('1.jpg')`;
+
+      // ------------------------------------------------------------------------
+      // input 먼저 받아서 문자열 가공하기
+      urlInput.oninput = function () {
+        // html에서 받은 원본 문자열
+        targetUrl = urlInput.value;
+      };
+
+      // ------------------------------------------------------------------------
+      // 요청을 실제로 보내는 영역
+
+      setInput.onclick = function () {
+        // 사용자가 상호작용할 때 오디오 재생 시작
+        backgroundAudio
+          .play()
+          .catch((e) => console.error("오디오 자동 재생 실패:", e));
+
+        if (!targetUrl) {
+          alert("URL을 입력해주세요.");
+          return;
+        }
+
+        // 입력된 URL에 프로토콜이 없으면 자동으로 https://를 추가합니다.
+        let fullUrl = targetUrl;
+        if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
+          fullUrl = "https://" + fullUrl;
+        }
+
+        // Green Check API를 위한 hostname은 이전과 동일하게 가공합니다.
+        const greenHostname = fullUrl
+          .replace(/^(https?:\/\/)?(www\.)?/, "")
+          .split("/")[0];
+        const greenCheckUrl = `https://api.thegreenwebfoundation.org/api/v3/greencheck/${greenHostname}`;
+        const pageSpeedUrl = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(
+          fullUrl
+        )}&key=${apiKey}&strategy=desktop`;
+
+        // 결과를 표시할 새로운 요소를 만듭니다.
+        const resultDiv = document.createElement("div");
+        resultDiv.classList.add("result-item");
+        resultDiv.innerHTML = `<span>${fullUrl}</span>: <span class="carbon-result">계산 중...</span>`;
+        carbonList.appendChild(resultDiv);
+
+        // 모든 요청이 완료될 때까지 기다림
+        Promise.all([
+          // Green Web Foundation API 요청
+          fetch(greenCheckUrl)
+            .then((response) => {
+              if (!response.ok) {
+                throw new Error(
+                  `Green Check API error! Status: ${response.status}`
+                );
+              }
+              return response.json();
+            })
+            .then((data) => {
+              const isGreen = data.green;
+              return isGreen;
+            })
+            .catch((error) => {
+              console.error("Green Check API Error:", error);
+              // 에러 발생 시 isGreen을 false로 간주
+              return false;
+            }),
+
+          // PageSpeed API 요청
+          fetch(pageSpeedUrl)
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.error) {
+                throw new Error(`PageSpeed API Error: ${data.error.message}`);
+              }
+              const pageSize =
+                data.lighthouseResult?.audits["total-byte-weight"]
+                  ?.numericValue;
+              if (pageSize === undefined) {
+                throw new Error(
+                  "Could not find total page size in API response."
+                );
+              }
+              return pageSize;
+            })
+            .catch((error) => {
+              console.error("PageSpeed API Error:", error);
+              return 0; // 에러 발생 시 페이지 크기를 0으로 간주
+            }),
+        ])
+          .then(([isGreen, pageSize]) => {
+            // 두 API 요청이 모두 성공하면 Carbon API 호출
+            const greenValue = isGreen ? 1 : 0;
+            const carbonApiUrl = `https://api.websitecarbon.com/data?bytes=${pageSize}&green=${greenValue}`;
+
+            return fetch(proxyUrl + carbonApiUrl);
+          })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(
+                `Carbon API fetch failed: ${response.statusText}`
+              );
+            }
+            return response.json();
+          })
+          .then((carbonData) => {
+            const carbonGrams = carbonData["gco2e"];
+            const rating = carbonData["rating"];
+
+            // 누적 웹사이트 개수 증가
+            websiteCount++;
+
+            // HTML에 결과 업데이트
+            const carbonResultSpan = resultDiv.querySelector(".carbon-result");
+            carbonResultSpan.textContent = `${carbonGrams.toFixed(2)} g`;
+
+            // 누적 탄소량 업데이트
+            totalCarbonAmount += carbonGrams;
+            totalCarbon.textContent = `총 누적 CO2 배출량: ${totalCarbonAmount.toFixed(
+              2
+            )} g`;
+
+            // 누적 배출량에 따라 시각/청각 효과 변경
+            updateEffectByTotalCarbon();
+          })
+          .catch((error) => {
+            console.error("An error occurred:", error);
+            const carbonResultSpan = resultDiv.querySelector(".carbon-result");
+            carbonResultSpan.textContent = `계산 실패`;
+          });
+      };
+
+      // 누적 CO2 배출량에 따라 효과를 변경하는 새로운 함수
+      function updateEffectByTotalCarbon() {
+        // 초반 5회까지는 websiteCount를 5로 고정하고, 그 이후부터 실제 값 사용
+        const currentMultiplier = websiteCount < 5 ? 5 : websiteCount;
+
+        const A_plus_limit = ratingTiers.A_plus * currentMultiplier;
+        const C_limit = ratingTiers.C * currentMultiplier;
+        const F_limit = ratingTiers.F * currentMultiplier;
+
+        if (totalCarbonAmount < A_plus_limit) {
+          // A+ 등급 기준
+          document.body.style.backgroundImage = `url('1.jpg')`;
+          backgroundAudio.volume = 1.0;
+        } else if (totalCarbonAmount < C_limit) {
+          // A, B 등급 기준 (1단계)
+          document.body.style.backgroundImage = `url('2.jpg')`;
+          backgroundAudio.volume = 0.7;
+        } else if (totalCarbonAmount < F_limit) {
+          // C, D, E 등급 기준 (2단계)
+          document.body.style.backgroundImage = `url('3.jpg')`;
+          backgroundAudio.volume = 0.3;
+        } else {
+          // F 등급 기준 (3단계)
+          document.body.style.backgroundImage = `url('4.jpg')`;
+          backgroundAudio.volume = 0.0;
+        }
+      }
+    </script>
+  </body>
+</html>
