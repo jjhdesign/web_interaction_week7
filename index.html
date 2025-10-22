@@ -3,14 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Carbon</title>
+    <title>Carbon Forest</title>
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
     <style>
       html,
       body {
         height: 100%;
         margin: 0;
-        font-family: Arial, sans-serif;
+        font-family: "Pretendard", sans-serif;
         color: #333;
+        overflow-x: hidden; /* 사슴이 마진 영역 밖에서 나올 때 스크롤바 방지 */
       }
       body {
         /* 배경 고정 */
@@ -20,81 +27,180 @@
         background-position: center;
         background-repeat: no-repeat;
         background-image: url("1.jpg");
+        position: relative;
+        /* comparison-data와 footer 공간 확보 */
+        padding-bottom: 120px;
+        box-sizing: border-box;
       }
       .container {
         display: flex;
-        justify-content: space-between;
-        align-items: center;
         width: 100%;
         height: 100%;
-        padding: 50px;
+        padding: 60px; /* 전체 컨테이너 좌우 패딩 */
+        padding-top: 90px;
         box-sizing: border-box;
+        position: relative;
+        align-items: flex-start; /* 상단 정렬 */
       }
-      .title {
-        font-size: 100px;
-        font-weight: 600;
-        color: white;
-        text-align: left;
-        flex: 1;
-        flex-basis: 50%; /* 두 구역이 비슷한 너비를 갖도록 설정 */
-        padding-right: 50px;
-        word-break: keep-all; /* 단어 단위 줄바꿈 */
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* 가독성을 위한 그림자 효과 */
-      }
-      main {
-        text-align: center;
-        padding: 20px;
-        background-color: rgba(255, 255, 255, 0.85); /* 불투명도 약간 높임 */
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        flex: 1;
-        flex-basis: 50%; /* 두 구역이 비슷한 너비를 갖도록 설정 */
-        max-width: 700px; /* 오른쪽 UI 최대 너비 확장 */
-        min-height: 500px; /* 최소 높이 설정 */
+      .title-container {
+        flex-basis: 60%; /* 타이틀 구역을 60%로 확장 */
         display: flex;
         flex-direction: column;
-        align-items: center;
-        margin-top: auto;
-        margin-bottom: auto;
+        justify-content: flex-start; /* 상단 정렬 */
+        align-items: flex-start;
+        box-sizing: border-box;
+        position: relative; /* z-index를 적용하려면 필요 */
+        z-index: 10; /* image-overlay보다 높은 값 설정 */
+      }
+      .title-text {
+        font-size: 130px;
+        font-weight: 700;
+        color: white;
+        text-align: left;
+        word-break: keep-all;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        margin: 0 0 20px 0;
+        line-height: 110%;
+        letter-spacing: -0.02em;
+      }
+      .title-description {
+        font-size: 20px;
+        font-weight: 400;
+        line-height: 140%;
+        letter-spacing: -0.02em;
+        color: white;
+        text-align: left;
+        word-break: keep-all;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        margin: 0;
+      }
+      .image-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        transition: opacity 0.5s ease-in-out;
+        opacity: 1; /* 이미지 투명도 1 (완전히 보이게) */
+        background-size: cover;
+        background-position: center;
+        pointer-events: none; /* 오버레이 자체가 클릭 이벤트를 막지 않도록 설정 */
+        background-image: url("1-2.png"); /* 1-2.png를 배경 이미지로 설정 */
+        z-index: 999; /* 가장 높은 레이어에 위치하도록 z-index를 매우 높게 설정 */
+      }
+      main {
+        text-align: left;
+        padding: 20px;
+        /* main 스타일 */
+        background-color: rgba(114, 114, 114, 0.4);
+        backdrop-filter: blur(4px);
+        border-radius: 8px; /* 4px로 변경 */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+        flex-basis: 40%;
+        max-width: 700px;
+        display: flex;
+        flex-direction: column;
+        margin-left: auto;
+        position: relative;
+        /* 사슴 컨테이너(1003)보다 낮음 */
+        z-index: 1002;
       }
       #search-container {
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         width: 100%;
         margin-bottom: 20px;
       }
       #urlInput {
         flex-grow: 1;
+        height: 24px; /* 높이 통일 */
         padding: 12px 15px;
-        border: 1px solid #ddd;
-        border-radius: 24px;
-        font-size: 16px;
-        margin-right: 10px;
-        box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        border: none;
+        background-color: rgba(0, 0, 0, 0.4);
+        color: white;
+        border-radius: 4px; /* 4px로 변경 */
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        margin-right: 20px;
+        vertical-align: middle; /* 텍스트 수직 중앙 정렬 */
+      }
+      #urlInput::placeholder {
+        color: #ddd;
       }
       #urlInput:focus {
         outline: none;
-        border-color: #4285f4;
-        box-shadow: 0 0 0 1px #4285f4;
       }
       #setInput {
-        padding: 12px 25px;
+        width: 50px;
+        height: 50px;
         border: none;
-        background-color: #4285f4;
-        color: white;
-        border-radius: 24px;
-        font-size: 16px;
+        background: white;
+        border-radius: 50%; /* 원형으로 변경 */
         cursor: pointer;
-        transition: background-color 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
       }
       #setInput:hover {
-        background-color: #357ae8;
+        transform: scale(1.05);
+      }
+      #setInput img {
+        width: 24px;
+        height: 24px;
+      }
+
+      /* 오디오 토글 버튼 스타일 */
+      #audio-toggle {
+        position: fixed; /* body 기준으로 고정 */
+        top: 24px;
+        right: 60px;
+        width: 50px;
+        height: 50px;
+        border: none;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s ease;
+        /* 사슴 컨테이너(1003)보다 높게 설정 */
+        z-index: 1004;
+        background-color: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      }
+
+      #audio-toggle img {
+        width: 24px;
+        height: 24px;
+        transition: opacity 0.3s;
+      }
+
+      #audio-toggle:hover {
+        transform: scale(1.05);
+      }
+
+      h4 {
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        color: white;
+        margin: 0 0 20px 0;
+        text-align: left;
       }
       h2 {
         font-size: 24px;
-        color: #555;
-        margin-top: 0;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        color: white;
+        margin-top: 16px;
       }
       #carbonList {
         text-align: left;
@@ -102,64 +208,365 @@
         overflow-y: auto;
         max-height: 250px;
         padding-right: 10px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
       }
       .result-item {
-        background-color: #f9f9f9;
-        padding: 10px 15px;
-        border-radius: 8px;
-        margin-bottom: 10px;
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        color: white;
+        padding: 16px 8px;
+        border-radius: 4px; /* 4px로 변경 */
         font-size: 14px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
-      .result-item span {
+      .result-item span:first-child {
         word-break: break-all;
+        font-size: 14px;
+        font-weight: 500;
       }
-      #totalCarbon {
-        font-weight: bold;
+      .carbon-result {
+        font-size: 20px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        margin-left: 10px;
+        white-space: nowrap;
+      }
+      .total-result-box {
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        color: white;
+        padding: 10px 10px;
+        border-radius: 4px; /* 4px로 변경 */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .total-result-box .label {
+        font-weight: 500;
         font-size: 18px;
-        color: #007bff;
-        padding: 10px 0;
-        text-align: left;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+      }
+      .total-result-box .value {
+        font-weight: 500;
+        font-size: 36px;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        margin-left: 10px;
+        white-space: nowrap;
       }
       hr {
         width: 100%;
         border: 0;
         height: 1px;
-        background: #ddd;
+        background: rgba(255, 255, 255, 0.3);
         margin: 20px 0;
+      }
+      footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        color: white;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        z-index: 10;
+        display: flex;
+        /* 좌우 패딩 60px 통일 */
+        padding: 4px 60px;
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+      footer span {
+        flex-grow: 1;
+        text-align: left;
+      }
+      footer span:nth-child(2) {
+        text-align: center;
+      }
+      footer span:last-child {
+        text-align: right;
+      }
+      h3 {
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        color: white;
+        margin: 40px 0 10px 0;
+        text-align: left;
+        width: 100%;
+      }
+
+      /* 새로운 부모 컨테이너: #comparison-data와 #usage-label-container를 묶어 관리 */
+      #comparison-wrapper {
+        position: fixed;
+        bottom: 60px; /* footer 위에 위치 */
+        left: 0;
+        width: 100%; /* 화면 전체 너비 사용 */
+        padding: 0 60px; /* 좌우 60px 마진처럼 보이도록 패딩 적용 */
+        box-sizing: border-box;
+        z-index: 1002; /* main과 동일하게 1002로 설정 */
+      }
+
+      /* 최종 수정된 비교 데이터 컨테이너 스타일 */
+      #comparison-data {
+        position: relative;
+        margin: 0;
+        width: 100%; /* 부모 wrapper의 너비를 꽉 채움 */
+
+        padding: 20px 24px; /* 내부 패딩 (사용자 제공 CSS 유지) */
+        box-sizing: border-box;
+
+        background-color: rgba(114, 114, 114, 0.4);
+        backdrop-filter: blur(4px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 아래쪽 그림자에서 위쪽으로 변경 */
+
+        display: flex;
+        justify-content: space-between; /* 4개 항목을 가로로 배치 */
+        align-items: center; /* 아이템 수직 중앙 정렬 */
+        gap: 20px;
+        border-radius: 8px;
+      }
+
+      /* '1년 사용시' 박스 스타일 (부모 wrapper 기준 위치 조정) */
+      #usage-label-container {
+        position: relative; /* 부모 wrapper 기준으로 상대적 배치 */
+        margin-bottom: 8px; /* comparison-data와의 간격 */
+        width: 100%;
+        display: flex; /* 내부 요소 정렬을 위해 flex 사용 */
+        align-items: center;
+      }
+
+      #usage-text {
+        display: inline-block;
+        padding: 10px 20px;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(12px);
+        border-radius: 8px;
+        color: white;
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        /* comparison-data 박스의 내부 패딩(24px)만큼 오른쪽으로 이동하여 정렬 */
+        margin-right: 12px; /* 버튼과의 간격 */
+      }
+
+      /* 년도 조절 버튼 컨테이너 */
+      #usage-control {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      /* 년도 조절 버튼 스타일 */
+      .usage-button {
+        width: 20px;
+        height: 20px;
+        background-color: rgba(0, 0, 0, 0.8);
+        border: none;
+        color: white;
+        font-size: 10px;
+        font-weight: 700;
+        line-height: 1;
+        cursor: pointer;
+        border-radius: 2px;
+        transition: background 0.2s;
+        padding: 0;
+      }
+      .usage-button:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+
+      /* 🦌 사슴 두더지 게임 요소 스타일 */
+      #deer-game-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        /* 사슴이 없는 영역은 클릭을 아래로 통과시키고, 사슴 요소만 클릭 가능하게 함 */
+        pointer-events: none;
+        /* === 수정: 모든 UI 위 (main, comparison-wrapper의 z-index 1002보다 높게) === */
+        z-index: 1003;
+      }
+
+      .deer {
+        position: absolute;
+        /* === 사슴 크기 2.5배 (250px) === */
+        width: 250px;
+        height: 250px;
+        cursor: pointer;
+        pointer-events: none; /* 사슴이 없는 영역은 클릭 무시 */
+        opacity: 0;
+        transition: opacity 0.3s ease-out, transform 0.3s ease-out; /* 등장/퇴장 애니메이션 */
+      }
+
+      .deer.active {
+        pointer-events: auto; /* 활성화된 사슴만 클릭 가능 */
+        opacity: 1; /* 등장 상태 */
+      }
+
+      /* 🦌 deer 이미지 스타일 */
+      .deer.side,
+      .deer.vertical {
+        background-size: contain;
+        background-repeat: no-repeat;
+      }
+
+      /* 상하 제거 */
+      .deer.vertical {
+        display: none;
+      }
+
+      /* 방향별 초기 위치 설정 및 변환 */
+      /* 좌측에서 나옴 */
+      /* JS에서 left: -250px; 설정 */
+      .deer.left {
+      }
+      /* 우측에서 나옴 (좌우 반전) */
+      /* JS에서 right: -250px; 설정 */
+      .deer.right {
+        transform: scaleX(-1);
+      }
+      /* 상단/하단 제거 */
+      .deer.top,
+      .deer.bottom {
+        display: none;
+      }
+
+      .comparison-item {
+        display: flex;
+        flex-direction: row; /* 아이콘과 텍스트를 가로로 배치 */
+        align-items: center; /* 수직 중앙 정렬 */
+        flex: 1; /* 가로 공간 균등 분배 */
+        text-align: left; /* 텍스트 정렬 */
+      }
+
+      .comparison-icon-container {
+        width: 80px;
+        height: 80px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center; /* 수직 중앙 정렬 */
+        justify-content: center;
+        background-color: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(4px);
+        margin-right: 15px; /* 텍스트와의 간격 */
+        flex-shrink: 0;
+      }
+
+      .comparison-icon-container img {
+        width: 60px;
+        height: 60px;
+      }
+
+      .comparison-text-block {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start; /* 텍스트 왼쪽 정렬 */
+        justify-content: center;
+        color: white;
+        width: 100%;
+      }
+
+      .comparison-title {
+        /* 웹사이트가 배출하는 탄소량 (h2)과 동일한 폰트 스타일 */
+        font-size: 24px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        margin: 0;
+        word-break: keep-all;
+      }
+
+      .comparison-description {
+        /* 웹사이트 탄소량 결과값 (carbon-result)과 동일한 폰트 스타일 */
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 120%;
+        letter-spacing: -0.02em;
+        margin-top: 8px;
+        color: #ddd; /* 설명 텍스트는 조금 더 연하게 */
+        word-break: keep-all;
       }
     </style>
   </head>
   <body>
+    <button id="audio-toggle">
+      <img id="audio-icon" src="sound.png" alt="Toggle Sound" />
+    </button>
+
+    <div id="deer-game-container"></div>
+
     <div class="container">
-      <div>
-        <p class="title">FOREST BEHIND MY SCREEN</p>
-        <p style="color: white">
-          우리가 무심코 소비하는 인터넷은 보이지 않는 에너지를 쓰고,<br />
-          그 에너지는 실제로 숲을 사라지게 만듭니다. 이 사이트는 당신이 <br />
-          일상적으로 방문하는 웹사이트들이 화면 뒤의 숲을 얼마나 파괴하고 있는지
-          보여줍니다.
+      <div class="title-container">
+        <p class="title-text">FOREST<br />BEHIND<br />MY SCREEN</p>
+        <p class="title-description">
+          우리가 무심코 소비하는 인터넷은 보이지 않는 에너지를 쓰고, <br />
+          그 에너지는 실제로 숲을 사라지게 만듭니다. 이 사이트는 <br />당신이
+          일상적으로 방문하는 웹사이트들이 화면 뒤의 숲을 <br />얼마나 파괴하고
+          있는지 보여줍니다.
         </p>
       </div>
+
       <main>
-        <h4>계산해 볼 사이트</h4>
+        <h4>당신이 자주 방문하는 웹사이트들을 입력하세요.</h4>
         <div id="search-container">
-          <input id="urlInput" type="url" placeholder="URL을 입력하세요..." />
-          <button id="setInput">Go!</button>
+          <input id="urlInput" type="url" placeholder="URL" />
+          <button id="setInput">
+            <img src="search.png" alt="Search" />
+          </button>
         </div>
 
-        <h2>누적 결과</h2>
+        <h2>웹사이트가 배출하는 탄소량</h2>
         <div id="carbonList"></div>
-        <hr />
+        <h3>누적 탄소 배출량</h3>
         <div id="totalCarbon"></div>
       </main>
     </div>
+
+    <div class="image-overlay"></div>
+
+    <div id="comparison-wrapper">
+      <div id="usage-label-container">
+        <span id="usage-text">1년 사용시</span>
+        <div id="usage-control">
+          <button class="usage-button" id="increase-year">▲</button>
+          <button class="usage-button" id="decrease-year">▼</button>
+        </div>
+      </div>
+      <div id="comparison-data"></div>
+    </div>
+
+    <footer>
+      <span>2025-2 Web Interaction Midterm Project</span>
+      <span style="text-align: center">jasonjeong@seoultech.ac.kr</span>
+      <span style="text-align: right"
+        >Copyright © 2025 JaeHyun Jeong. All rights reserved.</span
+      >
+    </footer>
 
     <audio id="backgroundAudio" src="1.mp3" loop></audio>
 
     <script>
       // proxy Url은 요청을 보낼 때, 간단히 말하면 다른 사이트에 요청을 보낼 수 있도록 우회하기 위해 필요한 주소
       const proxyUrl = "https://corsproxy.io/?";
-      // https://developers.google.com/speed/docs/insights/v5/get-started?hl=ko&_gl=1*1impw7v*_up*MQ..*_ga*NDYzMzExMjMzLjE3NjA1MzIzNzc.*_ga_SM8HXJ53K2*czE3NjA1MzIzNzckbzEkZzAkdDE3NjA1MzIzNzckajYwJGwwJGgw#APIKey 에 접속해서 "키 가져오기" 버튼으로 API 키 발급, 이후 PASTE_API_KEY_HERE 부분에 붙여넣기
+      // API 키는 보안상 노출되지 않도록 실제 환경에서는 서버 측에 보관해야 합니다.
       const apiKey = "AIzaSyAO-LxIj-DTJ7hGxeQqQ9E9fvMIH2h18hU";
 
       // 등급별 CO2 기준 수치 (g)
@@ -173,48 +580,432 @@
         F: 0.36,
       };
 
-      // input으로 받는 url
-      let targetUrl = "";
-      // 누적 탄소 배출량을 계산하기 위한 변수
-      let totalCarbonAmount = 0;
-      // 누적 웹사이트 개수
-      let websiteCount = 0;
+      // ------------------------------------------------------------------------
+      // 누적 탄소 배출량을 일상적인 수치로 환산하는 상수 (1년 사용 기준)
 
-      // 오디오 요소 가져오기
+      // 1년 총 사용량 기준: 총 누적 탄소 배출량(g) * 365
+      const G_TO_KG_FACTOR = 1000;
+
+      const SCOOTER_CO2_G_PER_KM_MIN = 8;
+      const SCOOTER_CO2_G_PER_KM_MAX = 12;
+      const AVERAGE_SCOOTER_CO2_G_PER_KM =
+        (SCOOTER_CO2_G_PER_KM_MIN + SCOOTER_CO2_G_PER_KM_MAX) / 2; // 10 g/km
+
+      const TRAIN_CO2_G_PER_KM = 20;
+
+      const CAR_CO2_G_PER_KM_MIN = 120;
+      const CAR_CO2_G_PER_KM_MAX = 180;
+      const AVERAGE_CAR_CO2_G_PER_KM =
+        (CAR_CO2_G_PER_KM_MIN + CAR_CO2_G_PER_KM_MAX) / 2; // 150 g/km
+
+      const AIRPLANE_CO2_G_PER_KM = 255; // 1인당 (g)
+
+      // ------------------------------------------------------------------------
+
+      // UI 요소
+      const urlInput = document.getElementById("urlInput");
+      const setInput = document.getElementById("setInput");
+      const usageText = document.getElementById("usage-text");
+      const increaseButton = document.getElementById("increase-year");
+      const decreaseButton = document.getElementById("decrease-year");
+      const carbonList = document.getElementById("carbonList");
+      const totalCarbon = document.getElementById("totalCarbon");
+      const comparisonData = document.getElementById("comparison-data");
       const backgroundAudio = document.getElementById("backgroundAudio");
+      const audioToggle = document.getElementById("audio-toggle");
+      const audioIcon = document.getElementById("audio-icon");
+      const imageOverlay = document.querySelector(".image-overlay");
+      const deerGameContainer = document.getElementById("deer-game-container");
 
-      // 초기 상태 설정
-      const body = document.body;
-      body.style.backgroundImage = `url('1.jpg')`;
+      // 상태 변수
+      let targetUrl = "";
+      let totalCarbonAmount = 0; // 1회 방문 기준 누적 탄소량 (g)
+      let websiteCount = 0;
+      let annualMultiplier = 1; // 사용 연도 (최소 1, 최대 50)
+      let isAudioPlaying = false;
+      const MAX_YEARS = 50;
+      const MIN_YEARS = 1;
+
+      // 사슴 게임 관련 변수
+      let deerTimer;
+      let deerElements = [];
+      const DEER_SIZE = 250; // === 사슴 크기 2.5배 (250px) ===
+      const DEER_DURATION = 2500; // 사슴이 나타났다가 사라지는 시간 (ms) - 체류 시간
+      const DEER_APPEAR_INTERVAL = 3000; // 사슴이 나타나는 시간 간격 (ms) - 빈도
+
+      // 사슴이 등장할 위치 정의 (좌우 4개만 사용)
+      const DEER_SPOTS = [
+        { x: "0%", y: "30%", dir: "left", edge: "left" },
+        { x: "0%", y: "60%", dir: "left", edge: "left" },
+        { x: "100%", y: "40%", dir: "right", edge: "right" },
+        { x: "100%", y: "70%", dir: "right", edge: "right" },
+      ];
+
+      // ------------------------------------------------------------------------
+      // 사슴 두더지 게임 로직
+
+      function createDeerElements() {
+        // DEER_SPOTS 수에 맞춰 요소 생성
+        for (let i = 0; i < DEER_SPOTS.length; i++) {
+          const deer = document.createElement("div");
+          deer.classList.add("deer");
+
+          // 클릭 시 사라지게 하는 이벤트 리스너
+          deer.addEventListener("click", function () {
+            hideDeer(deer);
+            if (deer.onDeerHide) deer.onDeerHide(); // 스팟 재활성화 로직 호출
+          });
+          deerElements.push(deer);
+          deerGameContainer.appendChild(deer);
+        }
+      }
+
+      function getActiveTransform(spot) {
+        // deer1.png만 사용
+        if (spot.edge === "left") return `translateX(${DEER_SIZE}px)`;
+        if (spot.edge === "right")
+          return `translateX(-${DEER_SIZE}px) scaleX(-1)`;
+        return "";
+      }
+
+      function showDeer(deer, spot) {
+        // 초기 위치 설정
+        deer.style.left = spot.edge === "left" ? `-${DEER_SIZE}px` : spot.x;
+        deer.style.top = spot.y;
+        deer.style.right = spot.edge === "right" ? `-${DEER_SIZE}px` : ""; // right: 0%가 아니라 -250px에서 시작
+        deer.style.bottom = spot.edge === "bottom" ? "0" : "";
+
+        // 랜덤 사슴 이미지 선택 (deer1.png ~ deer4.png)
+        const randomDeerNum = Math.floor(Math.random() * 4) + 1;
+        deer.style.backgroundImage = `url('deer${randomDeerNum}.png')`;
+
+        // CSS 클래스 설정 (좌우인 side만 사용)
+        deer.className = `deer ${spot.dir} side`;
+
+        // 1. 초기 위치 (화면 밖) 설정: CSS가 트랜지션을 실행하기 전에 적용
+        if (spot.edge === "left")
+          deer.style.transform = `translateX(0)`; // left:-250px에서 시작하므로 transform은 0으로
+        else if (spot.edge === "right")
+          deer.style.transform = `translateX(0) scaleX(-1)`; // right:-250px에서 시작하므로 transform은 0으로
+
+        // requestAnimationFrame을 사용하여 CSS 트랜지션 강제 적용
+        requestAnimationFrame(() => {
+          // 2. 활성화 클래스 추가 및 등장 애니메이션 시작 (화면 안으로 이동)
+          deer.classList.add("active");
+          deer.style.transform = getActiveTransform(spot);
+        });
+
+        // 일정 시간 후 자동으로 사라지도록 설정
+        deer.timeout = setTimeout(() => {
+          hideDeer(deer);
+          if (deer.onDeerHide) deer.onDeerHide(); // 타임아웃 시 스팟 재활성화
+        }, DEER_DURATION);
+      }
+
+      function hideDeer(deer) {
+        clearTimeout(deer.timeout); // 자동 퇴장 타이머 취소
+
+        // 1. 퇴장 애니메이션 시작 (화면 밖으로 복귀)
+        deer.classList.remove("active");
+
+        // 트랜지션 복귀 (화면 밖으로 이동)
+        if (deer.classList.contains("left"))
+          deer.style.transform = `translateX(0)`; // left:-250px으로 복귀 (숨김)
+        else if (deer.classList.contains("right"))
+          deer.style.transform = `translateX(0) scaleX(-1)`; // right:-250px으로 복귀 (숨김)
+
+        // 2. 트랜지션 완료 후 클래스 제거 및 위치 리셋 (다음 스폰을 위해)
+        setTimeout(() => {
+          deer.className = "deer"; // 모든 클래스 제거 (기본 deer 클래스만 남김)
+          deer.style.left = "";
+          deer.style.right = "";
+          deer.style.top = "";
+          deer.style.bottom = "";
+          deer.style.transform = "";
+        }, 350); // transition 시간(0.3s)보다 길게 설정
+      }
+
+      let availableSpots = [...DEER_SPOTS]; // 전역으로 관리
+
+      function startDeerGame() {
+        // 게임 활성화 전 모든 사슴 요소 준비
+        if (deerElements.length === 0) createDeerElements();
+        deerElements.forEach((d) => {
+          clearTimeout(d.timeout);
+          d.className = "deer";
+          d.style.transform = "";
+          d.currentSpot = null;
+          d.onDeerHide = null;
+        });
+
+        // 사용 가능한 스팟 리셋
+        availableSpots = [...DEER_SPOTS];
+
+        function spawnDeer() {
+          let availableDeer = deerElements.filter(
+            (d) => !d.classList.contains("active")
+          );
+
+          // 사슴이 나타나지 않아야 할 상황 체크
+          if (availableDeer.length === 0 || availableSpots.length === 0) {
+            return;
+          }
+
+          // 사용 가능한 사슴과 스팟을 무작위로 선택
+          const deerIndex = Math.floor(Math.random() * availableDeer.length);
+          const spotIndex = Math.floor(Math.random() * availableSpots.length);
+
+          const deer = availableDeer[deerIndex];
+          const spot = availableSpots.splice(spotIndex, 1)[0]; // 사용 중인 스팟은 임시 제거
+
+          showDeer(deer, spot);
+
+          // 사슴에게 스팟 정보 저장
+          deer.currentSpot = spot;
+
+          // 사슴이 숨겨질 때 (클릭 또는 타임아웃) 스팟 재활성화
+          deer.onDeerHide = function () {
+            if (deer.currentSpot) {
+              availableSpots.push(deer.currentSpot); // 스팟 재활성화
+              deer.currentSpot = null;
+            }
+            deer.onDeerHide = null;
+          };
+        }
+
+        // 게임 타이머 시작
+        deerTimer = setInterval(spawnDeer, DEER_APPEAR_INTERVAL);
+      }
+
+      function stopDeerGame() {
+        if (deerTimer) {
+          clearInterval(deerTimer);
+          deerTimer = null;
+        }
+
+        // 모든 사슴 요소 즉시 제거
+        deerElements.forEach((deer) => {
+          clearTimeout(deer.timeout);
+          deer.remove();
+        });
+        deerElements = []; // 배열 초기화
+        availableSpots = [...DEER_SPOTS]; // 스팟 초기화
+      }
+
+      // ------------------------------------------------------------------------
+
+      // 초기 UI를 그리는 함수
+      function initializeUI() {
+        // carbonList에 초기 박스 추가
+        const initialCarbonItem = document.createElement("div");
+        initialCarbonItem.classList.add("result-item");
+        initialCarbonItem.id = "initial-result";
+        initialCarbonItem.innerHTML = `<span class="carbon-result">0.00 g</span><span></span>`;
+        carbonList.appendChild(initialCarbonItem);
+
+        // totalCarbon에 초기 박스 추가
+        const initialTotalBox = document.createElement("div");
+        initialTotalBox.classList.add("total-result-box");
+        initialTotalBox.id = "initial-total";
+        initialTotalBox.innerHTML = `<span class="value">0.00 g</span>`;
+        totalCarbon.appendChild(initialTotalBox);
+
+        // comparison-data에 초기 박스 추가 (내용은 0으로 채워짐)
+        comparisonData.innerHTML = `
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon2.png" alt="Electric Scooter" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">전동킥보드 0 km 주행</p>
+							<p class="comparison-description">1km당 CO₂ 약 8 ~ 12 g</p>
+						</div>
+					</div>
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon1.png" alt="Train" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">기차 0 km 주행</p>
+							<p class="comparison-description">1km당 CO₂ 약 20g (1인당)</p>
+						</div>
+					</div>
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon3.png" alt="Car" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">자동차 0 km 주행</p>
+							<p class="comparison-description">중형차 1km당 CO₂ 약 120~180g</p>
+						</div>
+					</div>
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon4.png" alt="Airplane" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">비행기 0 km 비행</p>
+							<p class="comparison-description">1km당 CO₂ 약 255 g (1인당)</p>
+						</div>
+					</div>
+				`;
+
+        // 연도 UI 초기화
+        annualMultiplier = MIN_YEARS;
+        updateYearUI();
+
+        // **페이지 로드 시 오디오 자동 재생 시도**
+        backgroundAudio
+          .play()
+          .then(() => {
+            isAudioPlaying = true;
+            audioIcon.style.opacity = 1;
+          })
+          .catch((e) => {
+            console.error("Audio playback blocked:", e);
+            isAudioPlaying = false;
+            audioIcon.style.opacity = 0.3;
+          });
+      }
+
+      // 페이지 로드 시 초기 UI 그리기
+      document.addEventListener("DOMContentLoaded", initializeUI);
 
       // ------------------------------------------------------------------------
       // input 먼저 받아서 문자열 가공하기
       urlInput.oninput = function () {
-        // html에서 받은 원본 문자열
         targetUrl = urlInput.value;
       };
 
       // ------------------------------------------------------------------------
+      // 오디오 제어 함수
+      function toggleAudio() {
+        if (backgroundAudio.paused) {
+          backgroundAudio
+            .play()
+            .then(() => {
+              isAudioPlaying = true;
+              audioIcon.style.opacity = 1;
+            })
+            .catch((e) => {
+              console.error("Audio playback failed:", e);
+            });
+        } else {
+          backgroundAudio.pause();
+          isAudioPlaying = false;
+          audioIcon.style.opacity = 0.3;
+        }
+      }
+
+      audioToggle.onclick = toggleAudio;
+
+      // ------------------------------------------------------------------------
+      // 연도 UI 및 계산 로직 업데이트
+      function updateYearUI() {
+        usageText.textContent = `${annualMultiplier}년 사용시`;
+        updateComparisonData();
+      }
+
+      // 버튼 이벤트 핸들러
+      increaseButton.onclick = function () {
+        if (annualMultiplier < MAX_YEARS) {
+          annualMultiplier++;
+          updateYearUI();
+        }
+      };
+
+      decreaseButton.onclick = function () {
+        if (annualMultiplier > MIN_YEARS) {
+          annualMultiplier--;
+          updateYearUI();
+        }
+      };
+
+      // ------------------------------------------------------------------------
+      // 누적 탄소 배출량을 기반으로 비교 데이터를 업데이트하는 함수
+      function updateComparisonData() {
+        const totalAnnualCarbonGrams =
+          totalCarbonAmount * 365 * annualMultiplier;
+
+        // 계산
+        const scooterDistanceKM =
+          totalAnnualCarbonGrams / AVERAGE_SCOOTER_CO2_G_PER_KM;
+        const trainDistanceKM = totalAnnualCarbonGrams / TRAIN_CO2_G_PER_KM;
+        const carDistanceKM = totalAnnualCarbonGrams / AVERAGE_CAR_CO2_G_PER_KM;
+        const airplaneDistanceKM =
+          totalAnnualCarbonGrams / AIRPLANE_CO2_G_PER_KM;
+
+        // HTML 문자열 생성 (순서: 킥보드 -> 기차 -> 자동차 -> 비행기)
+        comparisonData.innerHTML = `
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon2.png" alt="Electric Scooter" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">전동킥보드 ${Math.round(
+                scooterDistanceKM
+              )} km 주행</p>
+							<p class="comparison-description">1km당 CO₂ 약 8 ~ 12 g</p>
+						</div>
+					</div>
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon1.png" alt="Train" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">기차 ${Math.round(trainDistanceKM)} km 주행</p>
+							<p class="comparison-description">1km당 CO₂ 약 20g (1인당)</p>
+						</div>
+					</div>
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon3.png" alt="Car" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">자동차 ${Math.round(carDistanceKM)} km 주행</p>
+							<p class="comparison-description">중형차 1km당 CO₂ 약 120~180g</p>
+						</div>
+					</div>
+					<div class="comparison-item">
+						<div class="comparison-icon-container">
+							<img src="icon4.png" alt="Airplane" />
+						</div>
+						<div class="comparison-text-block">
+							<p class="comparison-title">비행기 ${Math.round(airplaneDistanceKM)} km 비행</p>
+							<p class="comparison-description">1km당 CO₂ 약 255 g (1인당)</p>
+						</div>
+					</div>
+				`;
+
+        // 총 누적 표시 업데이트 (1회 방문 기준 합산만 표시)
+        totalCarbon.innerHTML = `
+					<div class="total-result-box">
+						<span class="value">${totalCarbonAmount.toFixed(2)} g</span>
+					</div>
+				`;
+      }
+
+      // ------------------------------------------------------------------------
       // 요청을 실제로 보내는 영역
 
-      setInput.onclick = function () {
-        // 사용자가 상호작용할 때 오디오 재생 시작
-        backgroundAudio
-          .play()
-          .catch((e) => console.error("오디오 자동 재생 실패:", e));
+      setInput.onclick = function (e) {
+        // 버튼의 기본 동작 방지 (만일의 경우 페이지 새로고침 방지)
+        e.preventDefault();
 
         if (!targetUrl) {
           alert("URL을 입력해주세요.");
+          // URL이 없으면 여기서 로직 종료
           return;
         }
 
-        // 입력된 URL에 프로토콜이 없으면 자동으로 https://를 추가합니다.
+        // 🦌 사슴 게임 시작! (계산 중 상태 시작)
+        startDeerGame();
+
         let fullUrl = targetUrl;
         if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
           fullUrl = "https://" + fullUrl;
         }
 
-        // Green Check API를 위한 hostname은 이전과 동일하게 가공합니다.
         const greenHostname = fullUrl
           .replace(/^(https?:\/\/)?(www\.)?/, "")
           .split("/")[0];
@@ -223,15 +1014,17 @@
           fullUrl
         )}&key=${apiKey}&strategy=desktop`;
 
-        // 결과를 표시할 새로운 요소를 만듭니다.
+        const initialResultBox = document.getElementById("initial-result");
+        if (initialResultBox) {
+          initialResultBox.remove();
+        }
+
         const resultDiv = document.createElement("div");
         resultDiv.classList.add("result-item");
-        resultDiv.innerHTML = `<span>${fullUrl}</span>: <span class="carbon-result">계산 중...</span>`;
+        resultDiv.innerHTML = `<span class="carbon-result">계산 중...</span><span>${fullUrl}</span>`;
         carbonList.appendChild(resultDiv);
 
-        // 모든 요청이 완료될 때까지 기다림
         Promise.all([
-          // Green Web Foundation API 요청
           fetch(greenCheckUrl)
             .then((response) => {
               if (!response.ok) {
@@ -241,17 +1034,12 @@
               }
               return response.json();
             })
-            .then((data) => {
-              const isGreen = data.green;
-              return isGreen;
-            })
+            .then((data) => data.green)
             .catch((error) => {
               console.error("Green Check API Error:", error);
-              // 에러 발생 시 isGreen을 false로 간주
               return false;
             }),
 
-          // PageSpeed API 요청
           fetch(pageSpeedUrl)
             .then((response) => response.json())
             .then((data) => {
@@ -270,11 +1058,13 @@
             })
             .catch((error) => {
               console.error("PageSpeed API Error:", error);
-              return 0; // 에러 발생 시 페이지 크기를 0으로 간주
+              return 0;
             }),
         ])
           .then(([isGreen, pageSize]) => {
-            // 두 API 요청이 모두 성공하면 Carbon API 호출
+            // 🦌 로딩 완료! 사슴 게임 중지
+            stopDeerGame();
+
             const greenValue = isGreen ? 1 : 0;
             const carbonApiUrl = `https://api.websitecarbon.com/data?bytes=${pageSize}&green=${greenValue}`;
 
@@ -292,23 +1082,21 @@
             const carbonGrams = carbonData["gco2e"];
             const rating = carbonData["rating"];
 
-            // 누적 웹사이트 개수 증가
             websiteCount++;
+            totalCarbonAmount += carbonGrams;
 
-            // HTML에 결과 업데이트
             const carbonResultSpan = resultDiv.querySelector(".carbon-result");
             carbonResultSpan.textContent = `${carbonGrams.toFixed(2)} g`;
+            const urlSpan = resultDiv.querySelector("span:last-of-type");
+            urlSpan.textContent = fullUrl;
 
-            // 누적 탄소량 업데이트
-            totalCarbonAmount += carbonGrams;
-            totalCarbon.textContent = `총 누적 CO2 배출량: ${totalCarbonAmount.toFixed(
-              2
-            )} g`;
-
-            // 누적 배출량에 따라 시각/청각 효과 변경
             updateEffectByTotalCarbon();
+            updateComparisonData();
           })
           .catch((error) => {
+            // 🦌 로딩 실패 시에도 사슴 게임 중지 및 오류 메시지 표시
+            stopDeerGame();
+
             console.error("An error occurred:", error);
             const carbonResultSpan = resultDiv.querySelector(".carbon-result");
             carbonResultSpan.textContent = `계산 실패`;
@@ -317,7 +1105,6 @@
 
       // 누적 CO2 배출량에 따라 효과를 변경하는 새로운 함수
       function updateEffectByTotalCarbon() {
-        // 초반 5회까지는 websiteCount를 5로 고정하고, 그 이후부터 실제 값 사용
         const currentMultiplier = websiteCount < 5 ? 5 : websiteCount;
 
         const A_plus_limit = ratingTiers.A_plus * currentMultiplier;
@@ -325,20 +1112,24 @@
         const F_limit = ratingTiers.F * currentMultiplier;
 
         if (totalCarbonAmount < A_plus_limit) {
-          // A+ 등급 기준
           document.body.style.backgroundImage = `url('1.jpg')`;
+          imageOverlay.style.backgroundImage = `url('1-2.png')`;
+          imageOverlay.style.opacity = "1";
           backgroundAudio.volume = 1.0;
         } else if (totalCarbonAmount < C_limit) {
-          // A, B 등급 기준 (1단계)
           document.body.style.backgroundImage = `url('2.jpg')`;
+          imageOverlay.style.backgroundImage = `url('2-2.png')`;
+          imageOverlay.style.opacity = "1";
           backgroundAudio.volume = 0.7;
         } else if (totalCarbonAmount < F_limit) {
-          // C, D, E 등급 기준 (2단계)
           document.body.style.backgroundImage = `url('3.jpg')`;
+          imageOverlay.style.backgroundImage = `url('3-2.png')`;
+          imageOverlay.style.opacity = "1";
           backgroundAudio.volume = 0.3;
         } else {
-          // F 등급 기준 (3단계)
           document.body.style.backgroundImage = `url('4.jpg')`;
+          imageOverlay.style.backgroundImage = `url('4-2.png')`;
+          imageOverlay.style.opacity = "1";
           backgroundAudio.volume = 0.0;
         }
       }
